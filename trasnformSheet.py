@@ -1,28 +1,27 @@
 import pandas as pd
-import tkinter as tk
-from tkinter import filedialog, messagebox
-import sys
+from tkinter import Tk, Canvas, Entry, Button, filedialog, messagebox
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
+import sys
 
-root = tk.Tk()
-root.title("File Processor")
-root.geometry("400x300")
 
-training_file = None
 
 def select_training_file():
     global training_file
     training_file = filedialog.askopenfilename(title="Select Training File", filetypes=[("Excel files", "*.xlsx;*.xls")])
+    
     if training_file:
-        training_label.config(text=f"Selected: {training_file.split('/')[-1]}")
-
-
+        file_name = training_file.split("/")[-1]
+        # Limita o nome do arquivo a 20 caracteres, adicionando "..." caso seja maior
+        display_name = file_name if len(file_name) <= 50 else file_name[:45] + "..."
+        btn_training.config(text=f"{display_name}")
+        
+        
 def process_files():
     global training_file
 
     if not training_file:
-        messagebox.showerror("Error", "Select the training file!")
+        messagebox.showerror("Error", "Select the excel file!")
         return
 
     try:
@@ -44,7 +43,7 @@ def process_files():
 
         output_filename = filename_entry.get().strip()
         if not output_filename:
-            messagebox.showerror("Error", "O nome informado não é valido.")
+            messagebox.showerror("Error", "O nome informado não é válido.")
             return
 
         with pd.ExcelWriter(f"{output_filename}.xlsx", engine='openpyxl') as writer:
@@ -75,17 +74,29 @@ def process_files():
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
 
-# UI Elements
-btn_training = tk.Button(root, text="Select Training File", command=select_training_file)
-btn_training.pack(pady=5)
-training_label = tk.Label(root, text="No file selected")
-training_label.pack(pady=5)
 
-filename_entry = tk.Entry(root, width=30)
-filename_entry.pack(pady=10)
-filename_entry.insert(0,"")
+# configs of window
+window = Tk()
+window.geometry("620x400")
+window.configure(bg="#83848B")
+window.title("File Processor")
 
-btn_process = tk.Button(root, text="Process Files", command=process_files)
-btn_process.pack(pady=10)
+canvas = Canvas(window, bg="#83848B", height=400, width=620, bd=0, highlightthickness=0, relief="ridge")
+canvas.place(x=0, y=0)
 
-root.mainloop()
+canvas.create_text(310, 55, anchor="center", text="Formatar Planilha", fill="#FFFFFF", font=("Inter SemiBold", 32))
+
+
+btn_training = Button(window, text="Procurar arquivo",  command=select_training_file, bg="#4A4F6B", fg="#DADADA", borderwidth=1)
+btn_training.place(x=125, y=120, width=368, height=36)
+
+canvas.create_text(125, 185, anchor="nw", text="Nomeie o arquivo", fill="#FFFFFF", font=("Helvetica", 12))
+
+filename_entry = Entry(window, bd=1, bg="#FFFFFF", fg="#000716", justify='center', borderwidth=1, font=("Helvetica", 12))
+filename_entry.place(x=125, y=220, width=368, height=36)
+
+btn_process = Button(window, text="Processar", command=process_files, bg="#4A4F6B", fg="#DADADA", borderwidth=1)
+btn_process.place(x=209, y=313, width=202, height=38)
+
+window.resizable(False, False)
+window.mainloop()
