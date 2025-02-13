@@ -11,9 +11,11 @@ def select_training_file():
     training_file = filedialog.askopenfilename(title="Select Training File", filetypes=[("Excel files", "*.xlsx;*.xls")])
     
     if training_file:
-        file_name = training_file.split("/")[-1]
-        # Limita o nome do arquivo a 20 caracteres, adicionando "..." caso seja maior
-        display_name = file_name if len(file_name) <= 50 else file_name[:45] + "..."
+        file_name = training_file.split("/")[-3:]
+        str_file_name = ""
+        for conc in file_name:
+            str_file_name += f"/{conc}" 
+        display_name = str_file_name if len(str_file_name) <= 60 else str_file_name[-60:]
         btn_training.config(text=f"{display_name}")
         
         
